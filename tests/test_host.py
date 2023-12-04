@@ -25,7 +25,7 @@ __status__ = "alpha"
 
 if "ENSEMBL_ACCOUNT" in os.environ:
     args = os.environ["ENSEMBL_ACCOUNT"].split()
-    host, username, password = args[0:3]
+    host, username, password = args[:3]
     kwargs = {}
     if len(args) > 3:
         kwargs["port"] = int(args[3])
@@ -129,13 +129,7 @@ class TestDBconnects(TestCase):
         """should return a listing of all the available databases on the
         indicated server"""
         available = get_db_name()
-        # make sure we have a compara db present -- a crude check on
-        # correctness
-        one_valid = False
-        for db in available:
-            if db.type == "compara":
-                one_valid = True
-                break
+        one_valid = any(db.type == "compara" for db in available)
         self.assertEqual(one_valid, True)
         # now check that when we request available under a specific version
         # that we only receive valid ones back

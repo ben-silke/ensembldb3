@@ -23,7 +23,7 @@ __status__ = "alpha"
 
 if "ENSEMBL_ACCOUNT" in os.environ:
     args = os.environ["ENSEMBL_ACCOUNT"].split()
-    host, username, password = args[0:3]
+    host, username, password = args[:3]
     kwargs = {}
     if len(args) > 3:
         kwargs["port"] = int(args[3])
@@ -80,7 +80,7 @@ class TestCompara(ComparaTestBase):
         stableid = "ENSG00000244734"
         expect = {"within_species_paralog", "other_paralog"}
         orthologs = self.comp.get_related_genes(stableid=stableid)
-        got = set([ortholog.relationship for ortholog in orthologs])
+        got = {ortholog.relationship for ortholog in orthologs}
         self.assertEqual(got, expect)
 
     def test_get_collection(self):

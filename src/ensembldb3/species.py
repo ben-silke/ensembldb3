@@ -147,8 +147,7 @@ class SpeciesNameMap:
 
     def get_species_names(self):
         """returns the list of species names"""
-        names = list(self._species_common.keys())
-        names.sort()
+        names = sorted(self._species_common.keys())
         return [str(n) for n in names]
 
     def get_ensembl_db_prefix(self, name):

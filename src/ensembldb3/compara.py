@@ -72,12 +72,7 @@ class Compara(object):
 
     def __str__(self):
         my_type = self.__class__.__name__
-        return "%s(species=%s; release=%s; connected=%s)" % (
-            my_type,
-            self.species,
-            self.release,
-            self.ComparaDb is not None,
-        )
+        return f"{my_type}(species={self.species}; release={self.release}; connected={self.ComparaDb is not None})"
 
     def _connect_db(self):
         if self._compara_db is None:
@@ -199,7 +194,7 @@ class Compara(object):
             if sp_set_id in species_sets:
                 species_sets[sp_set_id].update([gen_id])
             else:
-                species_sets[sp_set_id] = set([gen_id])
+                species_sets[sp_set_id] = {gen_id}
 
         expected = set(self._dbid_genome_map.keys())
         species_set_ids = [

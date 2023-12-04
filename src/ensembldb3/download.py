@@ -60,7 +60,7 @@ def lftp_listdir(host, dirname="", debug=True):
 
 def rsync_listdir(remote_path, dirname="", debug=True):
     cmnd = f"{remote_path}{dirname}" if dirname else remote_path
-    cmnd = r"rsync --list-only rsync://%s" % cmnd
+    cmnd = f"rsync --list-only rsync://{cmnd}"
     if debug:
         print(cmnd)
     result = exec_command(cmnd)
@@ -109,8 +109,7 @@ def reduce_dirnames(dirnames, species_dbs, verbose=False, debug=False):
         elif name.type == "compara" and "compara" in species_dbs:
             db_names.append(name)
 
-    db_names = _sort_dbs(db_names)
-    return db_names
+    return _sort_dbs(db_names)
 
 
 def read_config(config_path, verbose=False):

@@ -299,7 +299,7 @@ class _StableRegion(GenericRegion):
         table_name = self._attr_ensembl_table_map["stableid"]
 
         if self.genome.general_release >= 65:
-            func_name = f"_get_{table_name + '_stable_id'}_record"
+            func_name = f"_get_{table_name}_stable_id_record"
         else:
             func_name = f"_get_{table_name}_record"
 
@@ -502,8 +502,7 @@ class Gene(_StableRegion):
         """
         features = []
         for transcript in self.transcripts:
-            transcript_data = transcript._feature_data(parent_map)
-            if transcript_data:
+            if transcript_data := transcript._feature_data(parent_map):
                 features.append(transcript_data)
                 data = transcript._sub_feature_data(parent_map)
                 features.extend(data)
@@ -746,7 +745,7 @@ class Transcript(_StableRegion):
         start_exon, end_exon = translated_exons[0], translated_exons[-1]
         flip_coords = start_exon.location.strand == -1
 
-        for exon in exons[0 : start_exon.rank]:  # get 5'UTR
+        for exon in exons[:start_exon.rank]:  # get 5'UTR
             coord = exon.location.copy()
             if exon.stableid == start_exon.stableid:
                 coord.start = [coord.start, start_exon.location.end][flip_coords]
@@ -1259,7 +1258,7 @@ class Variation(_Region):
         variation_id = self._table_rows["variation_feature"]["variation_id"]
         allele_table = self.allele_table
         query = sql.select([allele_table], allele_table.c.variation_id == variation_id)
-        records = [r for r in query.execute()]
+        records = list(query.execute())
 
         if not records:
             self._cached[("allele_freqs")] = self.NULL_VALUE
@@ -1354,7 +1353,7 @@ class Variation(_Region):
 
         effects = set(effects)
         # TODO swap what we use for nysn by Ensembl version, thanks Ensembl!
-        nsyn = set(("coding_sequence_variant", "missense_variant"))
+        nsyn = {"coding_sequence_variant", "missense_variant"}
         if not effects & nsyn:
             self._cached["peptide_alleles"] = self.NULL_VALUE
             self._cached["translation_location"] = self.NULL_VALUE

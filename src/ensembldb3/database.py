@@ -66,9 +66,9 @@ class Database(object):
             c = self._db.execute(f"DESCRIBE {name}")
             custom_columns = []
             for r in c.fetchall():
-                Field = r["Field"]
                 type_ = r["Type"]
                 if "tinyint" in type_:
+                    Field = r["Field"]
                     custom_columns.append(sql.Column(Field, sql.Integer))
             try:
                 table = sql.Table(

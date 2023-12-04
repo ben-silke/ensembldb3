@@ -40,19 +40,13 @@ def main(file_paths, just, exclude, verbose):
         just = just.split(",")
         new = []
         for fn in file_paths:
-            for sub_word in just:
-                if sub_word in fn:
-                    new.append(fn)
+            new.extend(fn for sub_word in just if sub_word in fn)
         file_paths = new
     elif exclude:
         exclude = exclude.split(",")
         new = []
         for fn in file_paths:
-            keep = True
-            for sub_word in exclude:
-                if sub_word in fn:
-                    keep = False
-                    break
+            keep = all(sub_word not in fn for sub_word in exclude)
             if keep:
                 new.append(fn)
         file_paths = new

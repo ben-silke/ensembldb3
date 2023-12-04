@@ -19,7 +19,7 @@ try:
 
     connect_template = _connect_templates["mysqlconnector"]
     password_arg = "password"
-    sql_version = tuple([int(v) for v in sql.__version__.split(".") if v.isdigit()])
+    sql_version = tuple(int(v) for v in sql.__version__.split(".") if v.isdigit())
     if sql_version < (0, 9, 7):
         warnings.warn("mysql.connector requires sqlalchemy >= 0.9.7\n")
         raise ImportError

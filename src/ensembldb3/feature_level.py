@@ -46,8 +46,7 @@ class FeatureCoordLevelsCache(object):
 
             t = Table(header, collate, title=species)
             result.append(str(t))
-        result = "\n".join(result)
-        return result
+        return "\n".join(result)
 
     def _get_meta_coord_records(self, db):
         meta_coord = db.get_table("meta_coord")
@@ -99,7 +98,7 @@ class FeatureCoordLevelsCache(object):
         coord_system = CoordSystem(core_db=core_db)
 
         if (
-            set(feature_types).intersection(set(["cpg", "repeat", "gene"]))
+            set(feature_types).intersection({"cpg", "repeat", "gene"})
             and "core_db" not in self._species_feature_dbs[species]
         ):
             self._species_feature_dbs[species].append("core_db")
