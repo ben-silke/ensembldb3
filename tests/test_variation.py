@@ -25,7 +25,7 @@ NULL_VALUE = None
 
 if "ENSEMBL_ACCOUNT" in os.environ:
     args = os.environ["ENSEMBL_ACCOUNT"].split()
-    host, username, password = args[0:3]
+    host, username, password = args[:3]
     kwargs = {}
     if len(args) > 3:
         kwargs["port"] = int(args[3])
@@ -97,9 +97,11 @@ class TestVariation(GenomeTestBase):
             db_type="variation",
         )
         tn, tc = "variation_feature", "consequence_types"
-        expected = set(
-            ("3_prime_UTR_variant", "splice_acceptor_variant", "5_prime_UTR_variant")
-        )
+        expected = {
+            "3_prime_UTR_variant",
+            "splice_acceptor_variant",
+            "5_prime_UTR_variant",
+        }
         got = db.get_distinct(tn, tc)
         self.assertNotEqual(set(got) & expected, set())
 
@@ -140,11 +142,7 @@ class TestVariation(GenomeTestBase):
             snp = self._get_snp(self.snp_names[i])
             self.assertEqual(snp.ancestral, self.ancestral[i], snp)
             self.assertEqual(snp.symbol, self.snp_names[i], snp)
-            if isinstance(snp.effect, str):
-                effect = set([snp.effect])
-            else:
-                effect = set(snp.effect)
-
+            effect = {snp.effect} if isinstance(snp.effect, str) else set(snp.effect)
             self.assertEqual(effect, set(self.snp_effects[i]), snp)
             self.assertEqual(snp.alleles, self.snp_nt_alleles[i], snp)
             self.assertEqual(snp.map_weight, self.map_weights[i], snp)
@@ -191,11 +189,11 @@ class TestVariation(GenomeTestBase):
             return set(x)
 
         data = (
-            ("rs34213141", set(["ESP", "1000Genomes", "Frequency", "ExAC"]), func),
-            ("rs12791610", set(["ESP", "1000Genomes", "Frequency", "ExAC"]), func),
+            ("rs34213141", {"ESP", "1000Genomes", "Frequency", "ExAC"}, func),
+            ("rs12791610", {"ESP", "1000Genomes", "Frequency", "ExAC"}, func),
             (
                 "rs10792769",
-                set(["ESP", "1000Genomes", "Frequency", "HapMap", "ExAC"]),
+                {"ESP", "1000Genomes", "Frequency", "HapMap", "ExAC"},
                 func,
             ),
             ("rs868440790", set(), func),
@@ -231,16 +229,18 @@ class TestVariation(GenomeTestBase):
     def test_allele_freqs(self):
         """exercising getting AlleleFreq data"""
         snp = self._get_snp("rs34213141")
-        expect = set([("A", "0.0303"), ("G", "0.9697")])
+        expect = {("A", "0.0303"), ("G", "0.9697")}
         allele_freqs = snp.allele_freqs
-        allele_freqs = set(
-            (a, f"{f:.4f}") for a, f in allele_freqs.tolist(["allele", "freq"]) if f
-        )
+        allele_freqs = {
+            (a, f"{f:.4f}")
+            for a, f in allele_freqs.tolist(["allele", "freq"])
+            if f
+        }
         self.assertTrue(expect.issubset(allele_freqs))
 
     def test_by_effect(self):
         """excercising select SNPs by effect"""
-        for snp in self.human.get_variation(effect="missense_variant", limit=1):
+        for _ in self.human.get_variation(effect="missense_variant", limit=1):
             break
 
     def test_complex_query(self):

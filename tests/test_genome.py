@@ -29,7 +29,7 @@ NULL_VALUE = None
 
 if "ENSEMBL_ACCOUNT" in os.environ:
     args = os.environ["ENSEMBL_ACCOUNT"].split()
-    host, username, password = args[0:3]
+    host, username, password = args[:3]
     kwargs = {}
     if len(args) > 3:
         kwargs["port"] = int(args[3])
@@ -235,7 +235,7 @@ class TestGene(GenomeTestBase):
         canon_ids = (
             "ENSG00000111729 ENSG00000177151 ENSG00000237276 ENSG00000251184".split()
         )
-        for index, stable_id in enumerate(canon_ids):
+        for stable_id in canon_ids:
             gene = self.human.get_gene_by_stableid(stableid=stable_id)
             transcript = gene.canonical_transcript
             prot_seq = transcript.protein_seq
@@ -302,12 +302,9 @@ class TestGene(GenomeTestBase):
         constructed"""
         description = "brca2"
         results = list(self.human.get_genes_matching(description=description))
-        brca2 = None
-        for gene in results:
-            if gene.symbol.lower() == "brca2":
-                brca2 = gene
-                break
-
+        brca2 = next(
+            (gene for gene in results if gene.symbol.lower() == "brca2"), None
+        )
         self.assertTrue(brca2 is not None)
         self._eval_brca2(brca2)
 
@@ -427,8 +424,7 @@ class TestGene(GenomeTestBase):
             )
             introns = transcript.introns
             self.assertEqual(len(introns), len(exp_introns))
-            idx = 0
-            for intron in introns:
+            for idx, intron in enumerate(introns):
                 loc = intron.location
                 start, end = loc.start, loc.end
                 seq = str(intron.seq)
@@ -442,7 +438,6 @@ class TestGene(GenomeTestBase):
                 # test sequence
                 self.assertEqual(seq[:10], exp_seq5.upper())
                 self.assertEqual(seq[-10:], exp_seq3.upper())
-                idx += 1
 
     def test_intron_annotation(self):
         """sequences annotated with introns should return correct seq"""
@@ -488,8 +483,6 @@ class TestFeatures(GenomeTestBase):
             end=901867,
             limit=5,
         )
-        for _ in regions:
-            pass
 
     def test_repeats(self):
         """should correctly return a repeat"""

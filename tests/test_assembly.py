@@ -21,7 +21,7 @@ __status__ = "alpha"
 
 if "ENSEMBL_ACCOUNT" in os.environ:
     args = os.environ["ENSEMBL_ACCOUNT"].split()
-    host, username, password = args[0:3]
+    host, username, password = args[:3]
     kwargs = {}
     if len(args) > 3:
         kwargs["port"] = int(args[3])

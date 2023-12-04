@@ -37,9 +37,7 @@ INSTALL_COMPLETED = "INSTALL COMPLETED"
 def listpaths(dirname, glob_pattern):
     """return path to all files matching glob_pattern"""
     fns = [str(p) for p in pathlib.Path(dirname).glob(glob_pattern)]
-    if not fns:
-        return None
-    return fns
+    return None if not fns else fns
 
 
 def decompress_files(local_path):
@@ -460,7 +458,7 @@ def drop(configpath, mysqlcfg, verbose, debug):
     dbnames = reduce_dirnames(content, species_dbs)
 
     click.echo("The following databases will be deleted:")
-    click.echo("\n".join("  %s" % d for d in dbnames))
+    click.echo("\n".join(f"  {d}" for d in dbnames))
     try:
         click.confirm("Confirm you want to delete the databases", abort=True)
     except click.exceptions.Abort:
@@ -509,7 +507,7 @@ def show(release, mysqlcfg):
     names = get_db_name(account=account, release=str(release))
     click.echo(f"Databases at host='{account.host}' for release={release}")
     if names:
-        click.echo("\n".join("  %s" % n for n in names))
+        click.echo("\n".join(f"  {n}" for n in names))
     else:
         click.echo("  None")
 

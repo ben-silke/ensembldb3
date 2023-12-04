@@ -21,7 +21,7 @@ __status__ = "alpha"
 
 if "ENSEMBL_ACCOUNT" in os.environ:
     args = os.environ["ENSEMBL_ACCOUNT"].split()
-    host, username, password = args[0:3]
+    host, username, password = args[:3]
     kwargs = {}
     if len(args) > 3:
         kwargs["port"] = int(args[3])
@@ -47,7 +47,7 @@ class TestFeatureCoordLevels(TestCase):
             chicken_feature_levels["repeat"].levels, ["chromosome", "scaffold"]
         )
         self.assertEqual(
-            set(chicken_feature_levels["cpg"].levels), set(["chromosome", "scaffold"])
+            set(chicken_feature_levels["cpg"].levels), {"chromosome", "scaffold"}
         )
 
     def test_repeat(self):

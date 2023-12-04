@@ -30,10 +30,9 @@ def _assemble_seq(frags, start, end, frag_positions):
     assembled = []
     for index, (frag_start, frag_end) in enumerate(frag_positions):
         diff = frag_start - prev_end
-        assert diff >= 0, "fragment position start < previous end: %s, %s" % (
-            frag_start,
-            prev_end,
-        )
+        assert (
+            diff >= 0
+        ), f"fragment position start < previous end: {frag_start}, {prev_end}"
         assembled += ["N" * diff, frags[index]]
         prev_end = frag_end
     diff = end - frag_end
@@ -56,12 +55,14 @@ def get_lower_coord_conversion(coord, species, core_db):
     seq_level_rank = coord_system[seq_level_coord_type].rank
     assemblies = None
     for rank in range(query_rank + 1, seq_level_rank):
-        coord_type = None
-        for key in list(coord_system.keys()):
-            if coord_system[key].rank == rank:
-                coord_type = coord_system[key].name
-                break
-
+        coord_type = next(
+            (
+                coord_system[key].name
+                for key in list(coord_system.keys())
+                if coord_system[key].rank == rank
+            ),
+            None,
+        )
         if coord_type is None:
             continue
 

@@ -201,12 +201,12 @@ class Genome(object):
 
         if biotype:
             if like:
-                btype = gene_table.c.biotype.like("%" + biotype + "%")
+                btype = gene_table.c.biotype.like(f"%{biotype}%")
             else:
                 btype = gene_table.c.biotype == biotype
         if description:
             if like:
-                descr = gene_table.c.description.like("%" + description + "%")
+                descr = gene_table.c.description.like(f"%{description}%")
             else:
                 descr = gene_table.c.description.op("regexp")(
                     f"[[:<:]]{description}[[:>:]]"
@@ -251,8 +251,7 @@ class Genome(object):
         query = sql.select(
             [xref_table.c.display_label], from_obj=[joinclause], whereclause=whereclause
         ).distinct()
-        result = query.execute().fetchall()
-        if result:
+        if result := query.execute().fetchall():
             try:
                 symbol = flatten(result)[0]
             except IndexError:
@@ -374,8 +373,7 @@ class Genome(object):
                 records = []
 
         for record in records:
-            gene = Gene(self, self.CoreDb, data=record)
-            yield gene
+            yield Gene(self, self.CoreDb, data=record)
 
     def get_transcript_by_stableid(self, stableid):
         """returns the transcript matching stableid,
@@ -593,8 +591,7 @@ class Genome(object):
                 ensembl_coord=True,
             )
 
-            gene = klass(self, db, location=new, data=record)
-            yield gene
+            yield klass(self, db, location=new, data=record)
 
     def _get_variation_features(
         self, db, klass, target_coord, query_coord, where_feature, limit=None
@@ -742,25 +739,19 @@ class Genome(object):
         if self.general_release > 67:
             consequence_type += "s"  # change to plural column name
 
-        if effect is not None:
-            if like:
-                query = var_feature_table.columns[consequence_type].like(
-                    "%" + effect + "%"
-                )
-            else:
-                query = var_feature_table.columns[consequence_type] == effect
-        else:
+        if effect is None:
             query = var_feature_table.c.variation_name == symbol
 
+        elif like:
+            query = var_feature_table.columns[consequence_type].like(f"%{effect}%")
+        else:
+            query = var_feature_table.columns[consequence_type] == effect
         if validated:
             validated_col = "evidence_attribs"
             if self.general_release < 83:
                 validated_col = "validation_status"
 
-            null = None
-            if int(self.release) >= 65:
-                null = ""
-
+            null = "" if int(self.release) >= 65 else None
             query = sql.and_(query, var_feature_table.columns[validated_col] != null)
 
         if not somatic:
